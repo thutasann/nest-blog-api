@@ -50,22 +50,13 @@ export class UserController {
     ): Observable<Pagination<User>>{
         limit = limit > 100 ? 100 : limit;
 
-        if(username === null || username === undefined){
-            return this.userService.paginate({
-                page: Number(page),
-                limit: Number(limit),
-                route: 'http://localhost:3000/users'
-            })
-        }
-
-        else{
-
-            return this.userService.paginate({ 
-                page: Number(page), 
-                limit: Number(limit),
-                route: 'http://localhost:3000/users'
-            });
-
+        if (username === null || username === undefined) {
+            return this.userService.paginate({ page: Number(page), limit: Number(limit), route: 'http://localhost:3000/api/users' });
+        } else {
+            return this.userService.paginateFilterByUsername(
+                { page: Number(page), limit: Number(limit), route: 'http://localhost:3000/api/users' },
+                { username }
+            )
         }
     }
 

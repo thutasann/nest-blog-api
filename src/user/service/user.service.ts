@@ -74,16 +74,14 @@ export class UserService {
         return from(this.userRepository.findAndCount({
             skip: Number(options.page) * Number(options.limit) || 0,
             take: Number(options.limit) || 10,
-            order: { id: "ASC" },
+            order: {id: "ASC"},
             select: ['id', 'name', 'username', 'email', 'role'],
             where: [
-                {
-                    username: Like(`%${user.username}%`)
-                }
+                { username: Like(`%${user.username}%`)}
             ]
         })).pipe(
             map(([users, totalUsers]) => {
-                const usersPageable : Pagination<User> = {
+                const usersPageable: Pagination<User> = {
                     items: users,
                     links: {
                         first: options.route + `?limit=${options.limit}`,
@@ -98,7 +96,7 @@ export class UserService {
                         totalItems: totalUsers,
                         totalPages: Math.ceil(totalUsers / Number(options.limit))
                     }
-                };
+                };              
                 return usersPageable;
             })
         )
