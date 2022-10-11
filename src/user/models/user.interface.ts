@@ -1,14 +1,14 @@
 import { BlogEntry } from "src/blog/model/blog-entry.interface";
 
-export interface User{
+export interface User {
     id?: number;
     name?: string;
     username?: string;
     email?: string;
-    role?: UserRole;
     password?: string;
+    role?: UserRole;
     profileImage?: string;
-    blogEntries?: BlogEntry[]
+    blogEntries?: BlogEntry[];
 }
 
 export enum UserRole {

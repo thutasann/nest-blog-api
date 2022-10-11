@@ -1,9 +1,12 @@
-import { BlogEntryEntity } from "src/blog/model/blog-entry.entity";
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from "typeorm";
 import { UserRole } from "./user.interface";
+import { BlogEntryEntity } from "src/blog/model/blog-entry.entity";
+
+
 
 @Entity()
-export class UserEntity{
+export class UserEntity {
+
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -13,23 +16,23 @@ export class UserEntity{
     @Column({ unique: true })
     username: string;
 
-    @Column()
+    @Column({unique: true})
     email: string;
 
-    @Column()
+    @Column({select: false})
     password: string;
 
-    @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+    @Column({type: 'enum', enum: UserRole, default: UserRole.USER})
     role: UserRole;
 
     @Column({nullable: true})
     profileImage: string;
 
-    @OneToMany(type => BlogEntryEntity, blogEntity => blogEntity.author)
+    @OneToMany(type => BlogEntryEntity, blogEntryEntity => blogEntryEntity.author)
     blogEntries: BlogEntryEntity[];
 
     @BeforeInsert()
-    emailToLowerCase(){
+    emailToLowerCase() {
         this.email = this.email.toLowerCase();
     }
 }
