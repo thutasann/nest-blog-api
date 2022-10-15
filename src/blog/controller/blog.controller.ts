@@ -1,12 +1,32 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
-import { from, Observable, switchMap, tap } from 'rxjs';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { from, Observable, of, switchMap, tap } from 'rxjs';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-guards';
 import { UserIsUserGuard } from 'src/auth/guards/UserIsUser.guard';
 import { UserIsAuthorGuard } from '../guards/user-is-author.guard';
 import { BlogEntry } from '../model/blog-entry.interface';
+import { BlogImage } from '../model/image.interface';
 import { BlogService } from '../service/blog.service';
+import {diskStorage} from "multer";
+import { v4 as uuidv4} from 'uuid';
+import path = require('path');
+import { join } from 'path';
 
 export const BLOG_ENTRIES_URL = 'http://localhost:3000/api/blogs';
+
+
+export const storage = {
+    storage: diskStorage({
+        destination: './uploads/blog-entry-images',
+        filename: (req, file, cb) => {
+            const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+            const extension: string = path.parse(file.originalname).ext;
+
+            cb(null, `${filename}${extension}`)
+        }
+    })
+
+}
 @Controller('blogs')
 export class BlogController {
 
@@ -74,6 +94,20 @@ export class BlogController {
     @Delete('delete/:id')
     deleteOne(@Param('id') id: number): Observable<any>{
         return this.blogService.deleteOne(id);
+    }
+
+
+    @UseGuards(JwtAuthGuard)
+    @Post('upload')
+    @UseInterceptors(FileInterceptor('file', storage))
+    uploadFile(@UploadedFile() file, @Request() req): Observable<BlogImage>{
+        return of(file)
+    }
+
+
+    @Get('blog-image/:imagename')
+    findBlogImage(@Param('imagename') imagename: string, @Res() res: any): Observable<Object>{
+        return of(res.sendFile(join(process.cwd(), 'uploads/blog-entry-images/' + imagename)));
     }
 
 }
