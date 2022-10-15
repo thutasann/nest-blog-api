@@ -1,6 +1,7 @@
 import { Get, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import { from, map, Observable, of, switchMap, tap } from 'rxjs';
 import { User } from 'src/user/models/user.interface';
 import { UserService } from 'src/user/service/user.service';
 import { Repository } from 'typeorm';
@@ -46,6 +47,31 @@ export class BlogService {
     }
 
     /**
+     * Pagination for All blogs
+     */
+    paginateAll(options: IPaginationOptions): Observable<Pagination<BlogEntry>>{
+        return from(paginate<BlogEntry>(this.blogRepository, options, {
+            relations: ['author']
+        })).pipe(
+            map((blogEntries: Pagination<BlogEntry>) => blogEntries)
+        )
+    }
+
+    /**
+     * Paginate By Users
+     */
+    paginateByUser(options: IPaginationOptions, userId: any): Observable<Pagination<BlogEntry>> {
+        return from(paginate<BlogEntry>(this.blogRepository, options, {
+            relations: ['author'],
+            where: {
+                author: userId
+            }
+        })).pipe(
+            map((blogEntries: Pagination<BlogEntry>) => blogEntries)
+        )
+    }
+
+    /**
      * Find blog by user
      */
     findByUser(userId: any): Observable<BlogEntry[]> {
@@ -79,3 +105,4 @@ export class BlogService {
         return from(this.blogRepository.delete(id))
     }
 }
+
